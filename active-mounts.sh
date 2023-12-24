@@ -7,5 +7,12 @@ ps aux | grep -i sftp | grep -v grep | while read line; do
     echo "$server"
 done
 
+echo "--- Active oxfs mounts ---"
+
+ps -A | grep "oxfs" | while read -r line; do
+    echo ""
+    echo "$line"
+done
+
 echo "--- END ---"
 
