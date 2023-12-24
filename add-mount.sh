@@ -21,8 +21,7 @@ hostname=$(echo "$ssh_config" | awk '/HostName/ {print $2}')
 identity_file=$(echo "$ssh_config" | awk '/IdentityFile/ {print $2}')
 
 if [[ -z "$port" ]]; then
-    echo "Port not specified, defaulting to port 22."
-    $port="22"
+    port="22"
 fi
 
 # --- Debug information ---
@@ -33,7 +32,6 @@ echo "User: $user"
 echo "Port: $port"
 echo "Hostname: $hostname"
 echo "IdentityFile: $identity_file"
-
 
 sshkey_opt=""
 #
@@ -48,7 +46,7 @@ read -r mount_point
 
 if [[ -z $mount_point ]]; then
     mkdir -p ~/filesystems 
-    mount_point=~/filesystems/"$hostname"
+    mount_point="~/filesystems/$hostname"
 fi
 
 echo "What type of filesystem would you like this to be? [sshfs, oxfs] (oxfs default)"
