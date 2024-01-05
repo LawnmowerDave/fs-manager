@@ -33,7 +33,13 @@ echo "Port: $port"
 echo "Hostname: $hostname"
 echo "IdentityFile: $identity_file"
 
+echo "------------------------------------"
+echo "If the above information is incorrect, modify your ~/.ssh/config"
+
+
 sshkey_opt=""
+
+
 #
 # config specified identity file
 if [[ ! -z "$identity_file" ]]; then
@@ -49,6 +55,15 @@ if [[ -z $mount_point ]]; then
     mount_point="~/filesystems/$hostname"
 fi
 
+
+echo "What path would you like to have mounted from the remote machine? (/)"
+read -r remote_path
+
+if [[ -z $remote_path ]]; then
+    remote_path=/
+fi
+echo ""
+
 echo "What type of filesystem would you like this to be? [sshfs, oxfs] (oxfs default)"
 read -r fs_type
 
@@ -57,7 +72,7 @@ if [[ -z $fs_type ]]; then
 fi
 
 if [ "$fs_type" = "oxfs" ]; then
-    oxfs_command="oxfs --host $user@$hostname --ssh-port $port $sshkey_opt_oxfs --mount-point $mount_point --cache-path ~/.oxfs --logging /tmp/oxfs.log --daemon --auto-cache"
+    oxfs_command="oxfs --host $user@$hostname --ssh-port $port $sshkey_opt_oxfs --mount-point $mount_point --remote-path $remote_path --cache-path ~/.oxfs --logging /tmp/oxfs.log --daemon --auto-cache"
 
     echo "source ~/.venv/oxfs/bin/activate" > mount/$hostname
     echo "$oxfs_command" >> mount/$hostname
@@ -68,7 +83,7 @@ if [ "$fs_type" = "oxfs" ]; then
 
 elif [ "$fs_type" = "sshfs" ]; then
 
-    sshfs_command="sshfs -o IdentityFile=$identity_file -p $port -o volname=$hostname -o reconnect -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -o idmap=user -o auto_xattr -o dev -o suid -o defer_permissions -o noappledouble -o noapplexattr -o auto_cache -o no_readahead -o nolocalcaches -o noappledouble $user@$hostname $sshkey_opt"
+    sshfs_command="sshfs -o IdentityFile=$identity_file -p $port -o volname=$hostname -o reconnect -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -o idmap=user -o auto_xattr -o dev -o suid -o defer_permissions -o noappledouble -o noapplexattr -o auto_cache -o no_readahead -o nolocalcaches -o noappledouble $user@$hostname:$remote_path $mount_point $sshkey_opt"
 
     echo "$sshfs_command" > mount/$hostname
     chmod +x mount/$hostname
