@@ -64,11 +64,11 @@ if [[ -z $remote_path ]]; then
 fi
 echo ""
 
-echo "What type of filesystem would you like this to be? [sshfs, oxfs] (oxfs default)"
+echo "What type of filesystem would you like this to be? [sshfs, oxfs] (sshfs default)"
 read -r fs_type
 
 if [[ -z $fs_type ]]; then
-    fs_type="oxfs"
+    fs_type="sshfs"
 fi
 
 if [ "$fs_type" = "oxfs" ]; then
@@ -83,7 +83,12 @@ if [ "$fs_type" = "oxfs" ]; then
 
 elif [ "$fs_type" = "sshfs" ]; then
 
-    sshfs_command="sshfs -o IdentityFile=$identity_file -p $port -o volname=$hostname -o reconnect -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -o idmap=user -o auto_xattr -o dev -o suid -o defer_permissions -o noappledouble -o noapplexattr -o auto_cache -o no_readahead -o nolocalcaches -o noappledouble $user@$hostname:$remote_path $mount_point $sshkey_opt"
+
+    if [[ ! -z $identity_file ]]; then
+        identify_file_opt="-o IdentityFile=$identity_file"
+    fi
+
+    sshfs_command="sshfs $identify_file_opt -p $port -o volname=$hostname -o reconnect -o ServerAliveInterval=15 -o ServerAliveCountMax=3 -o idmap=user -o auto_xattr -o dev -o suid -o defer_permissions -o noappledouble -o noapplexattr -o auto_cache -o no_readahead -o nolocalcaches -o noappledouble $user@$hostname:$remote_path $mount_point $sshkey_opt"
 
     echo "$sshfs_command" > mount/$hostname
     chmod +x mount/$hostname
